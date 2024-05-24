@@ -15,7 +15,9 @@ blocks:
         - name: cpanm
           commands:
             - checkout
-            - cpanm --installdeps .
+            - cache restore cpanm-$SEMAPHORE_GIT_BRANCH-$(checksum cpanfile)
+            - cpanm --installdeps --notest .
+            - cache store cpanm-$SEMAPHORE_GIT_BRANCH-$(checksum cpanfile) /usr/local/lib/perl5/site_perl
   - name: Unit tests
     dependencies:
       - Setup
@@ -23,8 +25,9 @@ blocks:
       prologue:
         commands:
           - checkout
-          - cpanm --installdeps .
+          - cache restore cpanm-$SEMAPHORE_GIT_BRANCH-$(checksum cpanfile)
+          - cpanm --installdeps --notest .
       jobs:
         - name: Prove
           commands:
-            - prove -lr t
+            - prove -lvr t
